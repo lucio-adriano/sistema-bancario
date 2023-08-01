@@ -561,8 +561,8 @@ Essa é a rota que será utilizada para retornar o saldo de uma conta bancária.
 -   **Requisição**  
 
     Parâmetros do tipo query:
-        -   numero_conta.  
-        -   senha.  
+    -   numero_conta.  
+    -   senha.  
     Não deverá possuir conteúdo no corpo (body) da requisição.
 
 -   **Resposta**  
@@ -609,9 +609,8 @@ Essa é a rota que será utilizada para  listar as transações realizadas de um
 -   **Requisição**  
 
     Parâmetros do tipo query:
-    
-        -   numero_conta.  
-        -   senha.  
+    -   numero_conta.  
+    -   senha.  
     Não deverá possuir conteúdo no corpo (body) da requisição.
 
 -   **Resposta**  
