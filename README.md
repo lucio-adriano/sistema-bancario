@@ -609,6 +609,7 @@ Essa é a rota que será utilizada para  listar as transações realizadas de um
 -   **Requisição**  
 
     Parâmetros do tipo query:
+    
         -   numero_conta.  
         -   senha.  
     Não deverá possuir conteúdo no corpo (body) da requisição.
