@@ -32,8 +32,8 @@ function sacar(req, res) {
   let contas = bancodedados.contas;
   const saques = bancodedados.saques;
 
-  const conta = bancodedados.contas.find(conta => {
-    if(conta.numero === Number(saqueConta.numero_conta && saqueConta.senha === conta.usuario.senha)) return conta
+  const conta = contas.find(conta => {
+    if(conta.numero === Number(saqueConta.numero_conta) && Number(saqueConta.senha) === conta.usuario.senha) return conta
   });
   if (conta) {
     isSaldo = conta.saldo >= Number(saqueConta.valor);
@@ -60,12 +60,43 @@ function sacar(req, res) {
   return res.status(404).json({ mensagem: "Mensagem de erro" });
 }
 
-// Transferir valores entre contas bancárias
 function transferir(req, res) {
-  // Implementar a lógica para transferir valores entre contas bancárias
+  const {numero_conta_origem, numero_conta_destino, valor, senha} = req.body;
+  const contas = bancodedados.contas;
+  const transferencias = bancodedados.transferencias;
+
+  const contaOrigem = bancodedados.contas.find(conta => {
+    if(conta.numero === Number(numero_conta_origem)
+    && senha === conta.usuario.senha
+    && Number(valor) < conta.saldo) return conta
+  });
+
+  const contaDestino = bancodedados.contas.find(conta => conta.numero === Number(numero_conta_destino));
+
+  if (contaOrigem && contaDestino) {
+
+    for (let i = 0; i < bancodedados.contas.length; i++) {
+      if (bancodedados.contas[i] === contaOrigem) {
+        bancodedados.contas[i].saldo -= valor;
+      }
+    }
+    for (let i = 0; i < bancodedados.contas.length; i++) {
+      if (bancodedados.contas[i] === contaDestino) {
+        bancodedados.contas[i].saldo += valor;
+      }
+    }
+    transferencias.push({
+      data: new Date(),
+      numero_conta_origem,
+      numero_conta_destino,
+      valor
+    })
+    return res.status(201).json({ mensagem: "Transferência realizado com sucesso" });
+    
+  }
+  return res.status(400).json({ mensagem: "Mensagem de erro" });  
 }
 
-// Exportar os controladores
 module.exports = {
   depositar,
   sacar,

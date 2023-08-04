@@ -2,6 +2,7 @@ const bancodedados = require('../bancodedados');
 let numero = 0;
 
 function listarContas(req, res) {
+  console.log(bancodedados);
   if (bancodedados.banco.senha === req.query.senha_banco) return res.status(200).json(bancodedados.contas);
 
   if (req.query.senha_banco) return res.status(403).json({mensagem: 'o usuário não tem permissão de acessar o recurso solicitado'});
