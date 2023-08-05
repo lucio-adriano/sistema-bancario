@@ -2,7 +2,6 @@ const bancodedados = require('../bancodedados');
 let numero = 0;
 
 function listarContas(req, res) {
-  console.log(bancodedados);
   if (bancodedados.banco.senha === req.query.senha_banco) return res.status(200).json(bancodedados.contas);
 
   if (req.query.senha_banco) return res.status(403).json({mensagem: 'o usuário não tem permissão de acessar o recurso solicitado'});
@@ -73,9 +72,29 @@ function excluirConta(req, res) {
   return res.status(400).json({mensagem: "Mensagem de erro"});
 }
 
+
+function consultarSaldo(req, res) {
+  const { numero_conta, senha } = req.query;
+  const contas = bancodedados.contas;
+  console.log(numero_conta, senha);
+
+  for (const conta of contas) {
+
+    console.log(conta);
+    if (conta.numero === Number(numero_conta) && conta.usuario.senha === senha) return res.status(200).json({saldo: Number(`${conta.saldo}`)});
+  
+    if (numero_conta && senha) return res.status(400).json({mensagem: "Mensagem de erro"});
+  }
+  return res.status(500).json({ mensagem: 'Erro inesperado do servidor' });
+}
+
+
+
+
 module.exports = {
   listarContas,
   criarConta,
   atualizarUsuarioConta,
   excluirConta,
+  consultarSaldo
 };
