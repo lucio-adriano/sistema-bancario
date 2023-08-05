@@ -16,7 +16,7 @@ rotas.post('/transacoes/sacar', transacoesController.sacar);
 rotas.post('/transacoes/transferir', transacoesController.transferir);
 
 rotas.get('/contas/saldo', contasController.consultarSaldo);
-// rotas.get('/contas/extrato', contasController.extrato);
+rotas.get('/contas/extrato', contasController.extrato);
 
 
 module.exports = rotas;

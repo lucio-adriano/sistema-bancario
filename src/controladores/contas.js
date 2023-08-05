@@ -72,29 +72,47 @@ function excluirConta(req, res) {
   return res.status(400).json({mensagem: "Mensagem de erro"});
 }
 
-
 function consultarSaldo(req, res) {
   const { numero_conta, senha } = req.query;
   const contas = bancodedados.contas;
-  console.log(numero_conta, senha);
 
   for (const conta of contas) {
 
-    console.log(conta);
     if (conta.numero === Number(numero_conta) && conta.usuario.senha === senha) return res.status(200).json({saldo: Number(`${conta.saldo}`)});
-  
-    if (numero_conta && senha) return res.status(400).json({mensagem: "Mensagem de erro"});
+    
   }
-  return res.status(500).json({ mensagem: 'Erro inesperado do servidor' });
+
+  if (numero_conta && senha) return res.status(400).json({mensagem: "Mensagem de erro"});
 }
 
+function extrato(req, res) {
+  const { numero_conta, senha } = req.query;
+  let isValido = false
 
+  for (const conta of bancodedados.contas) {
+    if (conta.numero === Number(numero_conta) && conta.usuario.senha === senha) isValido = true
+  }
 
+  if (isValido) {
+    const { saques, depositos, transferencias } = bancodedados;
+
+    const extrato = {
+      depositos: depositos.filter(desposito => desposito.numero_conta === numero_conta),
+      saques: saques.filter(saque => saque.numero_conta === numero_conta),
+      transferenciasEnviadas: transferencias.filter(transferencia => transferencia.numero_conta_origem === numero_conta),
+      transferenciasRecebidas: transferencias.filter(transferencia => transferencia.numero_conta_destino === numero_conta)
+    };
+    return res.status(200).json(extrato);
+  }
+  
+  return res.status(400).json({ mensagem: 'Mensagem do erro!' });
+}
 
 module.exports = {
   listarContas,
   criarConta,
   atualizarUsuarioConta,
   excluirConta,
-  consultarSaldo
+  consultarSaldo,
+  extrato
 };

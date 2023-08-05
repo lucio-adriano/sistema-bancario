@@ -5,8 +5,6 @@ function depositar(req, res) {
   const numeroConta = Number(dadoDeposito.numero_conta);
   const valor = Number(dadoDeposito.valor);
 
-  let isSaldo = false
-
   const verificaContas = bancodedados.contas;
   const deposito = bancodedados.depositos;
   
@@ -33,56 +31,56 @@ function sacar(req, res) {
   const saques = bancodedados.saques;
 
   const conta = contas.find(conta => {
-    if(conta.numero === Number(saqueConta.numero_conta) && Number(saqueConta.senha) === conta.usuario.senha) return conta
-  });
-  if (conta) {
-    isSaldo = conta.saldo >= Number(saqueConta.valor);
-    if (isSaldo) {
-      contas = bancodedados.contas.filter(conta => {
-        if(conta.numero === Number(saqueConta.numero_conta)) {
-          conta.saldo -= saqueConta.valor 
-          return conta
-        }else{
-          return conta
-        }
-      })
-      saques.push(
-        {
-          data: new Date,
-          numero_conta: saqueConta.numero_conta,
-          valor: saqueConta.valor
-        }        
-      ) 
-      return res.status(201).json({ mensagem: "Saque realizado com sucesso" });
+    if(conta.numero === Number(saqueConta.numero_conta) && saqueConta.senha === conta.usuario.senha)
+     return conta
+    })
+    if (conta) {
+      isSaldo = conta.saldo >= Number(saqueConta.valor);
+      if (isSaldo) {
+        contas = bancodedados.contas.filter(conta => {
+          if(conta.numero === Number(saqueConta.numero_conta)) {
+            conta.saldo -= saqueConta.valor 
+            return conta
+          }else{
+            return conta
+          }
+        })
+        saques.push(
+          {
+            data: new Date,
+            numero_conta: saqueConta.numero_conta,
+            valor: saqueConta.valor
+          }        
+        ) 
+        return res.status(201).json({ mensagem: "Saque realizado com sucesso" });
+      }
+      return res.status(400).json({ mensagem: "Mensagem de erro" });
     }
-    return res.status(400).json({ mensagem: "Mensagem de erro" });
-  }
-  return res.status(404).json({ mensagem: "Mensagem de erro" });
+    return res.status(404).json({ mensagem: "Mensagem de erro" });
 }
 
 function transferir(req, res) {
   const {numero_conta_origem, numero_conta_destino, valor, senha} = req.body;
-  const contas = bancodedados.contas;
-  const transferencias = bancodedados.transferencias;
+  const {transferencias, contas} = bancodedados;
 
-  const contaOrigem = bancodedados.contas.find(conta => {
+  const contaOrigem = contas.find(conta => {
     if(conta.numero === Number(numero_conta_origem)
     && senha === conta.usuario.senha
-    && Number(valor) < conta.saldo) return conta
+    && Number(valor) <= conta.saldo) return conta
   });
 
-  const contaDestino = bancodedados.contas.find(conta => conta.numero === Number(numero_conta_destino));
+  const contaDestino = contas.find(conta => conta.numero === Number(numero_conta_destino));
 
   if (contaOrigem && contaDestino) {
 
-    for (let i = 0; i < bancodedados.contas.length; i++) {
-      if (bancodedados.contas[i] === contaOrigem) {
-        bancodedados.contas[i].saldo -= valor;
+    for (let i = 0; i < contas.length; i++) {
+      if (contas[i] === contaOrigem) {
+        contas[i].saldo -= valor;
       }
     }
-    for (let i = 0; i < bancodedados.contas.length; i++) {
-      if (bancodedados.contas[i] === contaDestino) {
-        bancodedados.contas[i].saldo += valor;
+    for (let i = 0; i < contas.length; i++) {
+      if (contas[i] === contaDestino) {
+        contas[i].saldo += valor;
       }
     }
     transferencias.push({
@@ -92,7 +90,6 @@ function transferir(req, res) {
       valor
     })
     return res.status(201).json({ mensagem: "Transferência realizado com sucesso" });
-    
   }
   return res.status(400).json({ mensagem: "Mensagem de erro" });  
 }
