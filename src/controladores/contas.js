@@ -28,18 +28,26 @@ function atualizarUsuarioConta(req, res) {
   const contas = bancodedados.contas;
   const conta = contas.find(conta => Number(numeroConta) === conta.numero);
 
+  const isValidoCpf = bancodedados.contas.some(conta => conta.usuario.cpf === usuario.cpf);
+  const isValidoEmail = bancodedados.contas.some(conta => conta.usuario.email === usuario.email);
+  console.log(isValidoCpf, isValidoEmail);
+
   if (conta !== undefined) {
-    if (usuario.nome) conta.usuario.nome = usuario.nome;
+    
+    if (isValidoCpf) return res.status(400).json({ mensagem: "CPF já cadastrado" });
+    if (isValidoEmail) return res.status(400).json({ mensagem: "Email já cadastrado" });
+
+    if (usuario.cpf) conta.usuario.cpf = usuario.cpf;
 
     if (usuario.email) conta.usuario.email = usuario.email;
 
-    if (usuario.cpf) conta.usuario.cpf = usuario.cpf;
+    if (usuario.nome) conta.usuario.nome = usuario.nome;
 
     if (usuario.data_nascimento) conta.usuario.data_nascimento = usuario.data_nascimento;
 
     if (usuario.telefone) conta.usuario.telefone = usuario.telefone;
 
-    if (usuario.senha) conta.senha = usuario.senha;
+    if (usuario.senha) conta.usuario.senha = usuario.senha;
 
     return res.status(201).json({ mensagem: "Conta atualizada com sucesso" });
   }
