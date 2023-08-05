@@ -1,12 +1,15 @@
 const express = require('express');
 const rotas = express();
 
+
 // Importar os controladores para cada rota
 const contasController = require('./controladores/contas');
 const transacoesController = require('./controladores/transacoes');
 
 // Definir as rotas para cada endpoint
-rotas.get('/contas', contasController.listarContas);
+// rotas.use(contasController.admin);
+
+rotas.get('/contas', contasController.admin, contasController.listarContas);
 rotas.post('/contas', contasController.criarConta);
 rotas.put('/contas/:numeroConta/usuario', contasController.atualizarUsuarioConta);
 rotas.delete('/contas/:numeroConta', contasController.excluirConta);

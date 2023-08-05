@@ -1,12 +1,17 @@
 const bancodedados = require('../bancodedados');
 let numero = 0;
 
+function admin(req, res, next) {
+
+  if (bancodedados.banco.senha === req.query.senha_banco) {
+    next();
+  }else{
+    if (req.query.senha_banco) return res.status(403).json({mensagem: 'o usuário não tem permissão de acessar o recurso solicitado'});
+  }
+}
+
 function listarContas(req, res) {
-  if (bancodedados.banco.senha === req.query.senha_banco) return res.status(200).json(bancodedados.contas);
-
-  if (req.query.senha_banco) return res.status(403).json({mensagem: 'o usuário não tem permissão de acessar o recurso solicitado'});
-
-  return res.status(500).json({ mensagem: 'Erro inesperado do servidor' });
+  return res.status(200).json(bancodedados.contas);
 }
 
 // Falta fazer - Verificar o CPF e o EMAIL para ser unico
@@ -109,6 +114,7 @@ function extrato(req, res) {
 }
 
 module.exports = {
+  admin,
   listarContas,
   criarConta,
   atualizarUsuarioConta,
