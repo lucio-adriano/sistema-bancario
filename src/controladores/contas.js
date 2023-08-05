@@ -1,31 +1,25 @@
 const bancodedados = require('../bancodedados');
 let numero = 0;
 
-function admin(req, res, next) {
-
-  if (bancodedados.banco.senha === req.query.senha_banco) {
-    next();
-  }else{
-    if (req.query.senha_banco) return res.status(403).json({mensagem: 'o usuário não tem permissão de acessar o recurso solicitado'});
-  }
-}
-
 function listarContas(req, res) {
   return res.status(200).json(bancodedados.contas);
 }
 
-// Falta fazer - Verificar o CPF e o EMAIL para ser unico
 function criarConta(req, res) {
   numero++
   const usuario = req.body
+  const isValidoCpf = bancodedados.contas.some(conta => conta.usuario.cpf === usuario.cpf);
+  const isValidoEmail = bancodedados.contas.some(conta => conta.usuario.email === usuario.email);
   const conta = {
     numero,
     saldo: 0,
     usuario
   }
-  
-  bancodedados.contas.push(conta)
-  res.status(200).json(conta)
+  if(!isValidoCpf && !isValidoEmail) {
+    bancodedados.contas.push(conta)
+    return res.status(200).json(conta)
+  }
+  return res.status(400).json({ mensagem: 'Mensagem de erro' })
 }
 
 function atualizarUsuarioConta(req, res) {
@@ -80,27 +74,20 @@ function excluirConta(req, res) {
 function consultarSaldo(req, res) {
   const { numero_conta, senha } = req.query;
   const contas = bancodedados.contas;
-
   for (const conta of contas) {
-
     if (conta.numero === Number(numero_conta) && conta.usuario.senha === senha) return res.status(200).json({saldo: Number(`${conta.saldo}`)});
-    
   }
-
   if (numero_conta && senha) return res.status(400).json({mensagem: "Mensagem de erro"});
 }
 
 function extrato(req, res) {
   const { numero_conta, senha } = req.query;
   let isValido = false
-
   for (const conta of bancodedados.contas) {
     if (conta.numero === Number(numero_conta) && conta.usuario.senha === senha) isValido = true
   }
-
   if (isValido) {
     const { saques, depositos, transferencias } = bancodedados;
-
     const extrato = {
       depositos: depositos.filter(desposito => desposito.numero_conta === numero_conta),
       saques: saques.filter(saque => saque.numero_conta === numero_conta),
@@ -109,12 +96,10 @@ function extrato(req, res) {
     };
     return res.status(200).json(extrato);
   }
-  
   return res.status(400).json({ mensagem: 'Mensagem do erro!' });
 }
 
 module.exports = {
-  admin,
   listarContas,
   criarConta,
   atualizarUsuarioConta,
